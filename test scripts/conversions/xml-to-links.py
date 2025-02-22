@@ -20,8 +20,8 @@ def parse_xml(input_file, output_file, search_tag):
         print(f"An error occurred: {e}")
 
 # Example usage
-input_file = 'literature_review.xml'
-output_file = 'new_lit_review.xml'
+input_file = 'xml files/science_and_society.xml'
+output_file = 'science_and_society.xml'
 search_tag = 'link'  # Change this to the tag you are searching for
 
 parse_xml(input_file, output_file, search_tag)

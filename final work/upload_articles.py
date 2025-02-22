@@ -7,7 +7,32 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import json
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
+import time
 
+# article category
+json_dictionary = 'science_and_society.json'
+
+start_time = time.time()
+#selector values for categories -> Secondary categories
+biochemistry = "#edit-field-sf-article-secondary-cats > option:nth-child(12)"
+environment = "#edit-field-sf-article-secondary-cats > option:nth-child(17)"
+genetics = "#edit-field-sf-article-secondary-cats > option:nth-child(19)"
+neurobiology = "#edit-field-sf-article-secondary-cats > option:nth-child(22)"
+cell_biology = "#edit-field-sf-article-secondary-cats > option:nth-child(15)"
+microbiology = "#edit-field-sf-article-secondary-cats > option:nth-child(21)"
+health_and_medicine = "#edit-field-sf-article-secondary-cats > option:nth-child(20)"
+technology = "#edit-field-sf-article-secondary-cats > option:nth-child(24)"
+biology = "#edit-field-sf-article-secondary-cats > option:nth-child(13)"
+
+# selector values -> primary
+literature_reviews = "13491"
+news = "13506"
+campus_news = "13456"
+book_review= "13451" #  reviews > book review (on WP)
+science_and_society = "13526"
+
+primary_category_selection = science_and_society
 
 def load_config(file_path):
     with open(file_path, 'r') as file:
@@ -42,14 +67,14 @@ def test_uc_davis_login():
     print("CAS login success")
     # teardown(driver)
 
-    config = load_config('articles.json')
-    # start_index = 14
-    start_index = 1
+    config = load_config(json_dictionary)
+    # change the start_index of the article
+    start_index = 2
     index = 1
 
     for article_key, article_data in config.items():
         if index >=start_index:
-            print(f"Processing article {index} - {article_key}")
+            print(f"PROCESSING ARTICLE {index} - {article_key}")
             launch_content(driver)
             sleep(10)
             add_content(driver, article_key, article_data)
@@ -148,10 +173,12 @@ def add_content(driver, article_key, article_data):
     date.send_keys(article_data['date'])
 
     # primary category for now is:
-    """selects literature reviews 13491"""
     primary_category = Select(driver.find_element(By.CSS_SELECTOR, "#edit-field-sf-article-category"))
-    primary_category.select_by_value("13491") #change if you need to select something else
-    # side bar
+    primary_category.select_by_value(primary_category_selection) #change if you need to select something else side bar
+
+    #secondary category
+    # secondary_category = driver.find_element(By.CSS_SELECTOR, health_and_medicine)
+    # secondary_category.click()
 
     # uncheck the PUBLISHED box for tests
     un_publish = driver.find_element(By.XPATH, "/html/body/div[2]/div/main/div[4]/div/form/div/div[3]/div/div[2]/div/div/input")
@@ -166,10 +193,16 @@ def add_content(driver, article_key, article_data):
 def setup():
     # Initialize Chrome WebDriver
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")  # Run in headless mode
+    chrome_options.add_argument("--headless")  # Run in headless mode
     chrome_options.add_argument("--disable-images")
     chrome_options.add_argument("--disable-extensions")
     driver = webdriver.Chrome(options=chrome_options)
+    delay = 3 # seconds
+    try:
+        myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'IdOfMyElement')))
+        print("Page is ready!")
+    except TimeoutException:
+        print("Loading took too much time!")
 
     # Navigate to the Aggie Transcript login page
     driver.get("https://aggietranscript.sf.ucdavis.edu/login")
@@ -181,3 +214,6 @@ def teardown(driver):
 
 # Run the login test
 test_uc_davis_login()
+end_time=time.time()
+execution_time = end_time - start_time
+print(f"Total execution time: {execution_time} seconds.")

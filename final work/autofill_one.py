@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 
 
 def test_uc_davis_login():
@@ -138,6 +139,9 @@ def add_content(driver):
     primary_category.select_by_value("13491")
     # side bar
 
+    secondary_category = driver.find_element(By.CSS_SELECTOR, "#edit-field-sf-article-secondary-cats > option:nth-child(12)")
+    secondary_category.click() #biochemistry
+
     # uncheck the PUBLISHED box for tests
     un_publish = driver.find_element(By.XPATH, "/html/body/div[2]/div/main/div[4]/div/form/div/div[3]/div/div[2]/div/div/input")
     un_publish.click()
@@ -163,6 +167,12 @@ def setup():
     chrome_options.add_argument("--disable-images")
     chrome_options.add_argument("--disable-extensions")
     driver = webdriver.Chrome(options=chrome_options)
+    delay = 3 # seconds
+    try:
+        myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, 'IdOfMyElement')))
+        print("Page is ready!")
+    except TimeoutException:
+        print("Loading took too much time!")
 
     # Navigate to the Aggie Transcript login page
     driver.get("https://aggietranscript.sf.ucdavis.edu/login")
